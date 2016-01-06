@@ -12,14 +12,18 @@ use ieee.numeric_std.all;
 entity apple2 is
 generic (
        
-       use_monitor_rom  : boolean := true;
-       use_auto_rom     : boolean := false
+      
+		 use_bios_rom     : boolean := true;    -- use test bios
+       use_auto_rom     : boolean := false;   -- use apple II roms
+		 use_cpu65xx_core : boolean := false;   
+		 use_T65_core     : boolean := true 
+		 
        );
   port (
     CLK_14M        : in  std_logic;              -- 14.31818 MHz master clock
     CLK_2M         : out std_logic;
     PRE_PHASE_ZERO : out std_logic;
-    FLASH_CLK      : in  std_logic;        -- approx. 2 Hz flashing char clock
+    FLASH_CLK      : in  std_logic;              -- approx. 2 Hz flashing char clock
     reset          : in  std_logic;
     ADDR           : out unsigned(15 downto 0);  -- CPU address
     ram_addr       : out unsigned(15 downto 0);  -- RAM address
@@ -79,7 +83,9 @@ architecture rtl of apple2 is
   -- CPU signals
   signal D_IN : unsigned(7 downto 0);
   signal A : unsigned(15 downto 0);
+  signal A_BIG : unsigned(23 downto 0);
   signal we : std_logic;
+  signal R_W_n : std_logic;
 
   -- Main ROM signals
   signal rom_out : unsigned(7 downto 0);
@@ -103,7 +109,8 @@ begin
 
   CLK_2M <= Q3;
   PRE_PHASE_ZERO <= PRE_PHASE_ZERO_sig;
-
+ 
+  
   ram_addr <= A when PHASE_ZERO = '1' else VIDEO_ADDRESS;
   ram_we <= we and not RAS_N when PHASE_ZERO = '1' else '0';
 
@@ -266,6 +273,7 @@ begin
     VIDEO      => VIDEO,
     COLOR_LINE => COLOR_LINE);
 
+cpu65xx_core: if use_cpu65xx_core generate
   cpu : entity work.cpu65xx
     generic map (
       pipelineOpcode => false,
@@ -288,23 +296,49 @@ begin
 		debugY  => debugY,
 		debugS  => debugS
     );
+end generate;
+
+T65_core: if use_T65_core generate
+
+   cpu : entity work.T65 port map (
+            Mode            => "01",
+            Abort_n         => '1',
+            SO_n            => '1',
+            Res_n           => not reset,
+            Enable          => not PRE_PHASE_ZERO_sig,
+            Clk             => Q3,
+            Rdy             => '1',
+            IRQ_n           => '1',
+            NMI_n           => '1',
+            R_W_n           => R_W_n,
+            Sync            => open,
+            unsigned(A(23 downto 0))  => A_BIG,
+            DI(7 downto 0)  => std_logic_vector(D_IN),
+            unsigned(DO(7 downto 0))  => D
+        );
+	 A  <= A_BIG( 15 downto 0); 
+    we <= not R_W_n;	  
+	 
+end generate;
 
   -- Original Apple had asynchronous ROMs.  We use a synchronous ROM
   -- that needs its address earlier, hence the odd clock.
  
- monitor_rom: if use_monitor_rom generate
-  roms : entity work.main_roms port map (
-    addr => rom_addr,
-    clk  => CLK_14M,
-    dout => rom_out);
- end generate;	 
-
 auto_rom: if use_auto_rom generate
-    
+ -- apple II roms 
  roms : entity work.apple_II_auto_rom port map (
     addr => std_logic_vector(rom_addr),
     clk  => CLK_14M,
     unsigned(DATA) => rom_out);
 end generate;	 
-    
+
+
+bios_rom: if use_bios_rom generate
+ -- test bios  
+ roms : entity work.bios_rom port map (
+    addr => std_logic_vector(rom_addr),
+    clk  => CLK_14M,
+    unsigned(DATA) => rom_out);
+end generate;	 
+
 end rtl;

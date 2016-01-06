@@ -30,7 +30,7 @@ begin
 	PS2_Controller: entity work.PS2Controller
 	
 	generic map(
-	clk_freq => 14
+	clk_freq => 14   -- 14 MHz clock
    )   
 	port map (
 		Reset     => Reset,

@@ -186,11 +186,12 @@ begin
   
   core : entity work.apple2 
   
-  generic map (
-       
-       use_monitor_rom  => false,
-       use_auto_rom     => true
-       )
+  generic map(
+  
+    use_bios_rom  => false,
+    use_auto_rom  => true
+		 
+  )		
 		 
   port map (
     CLK_14M        => CLK_14M,
