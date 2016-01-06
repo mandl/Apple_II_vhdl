@@ -1,0 +1,47 @@
+ADDRESS_MAP avrmap PPC405 0
+
+  	  
+    ADDRESS_SPACE rom_apple RAMB16 [0x00000000:0x00003fff]
+        BUS_BLOCK
+	        core/roms/Mram_ROM1 [7:0];
+        END_BUS_BLOCK;
+		  
+		  BUS_BLOCK
+	        core/roms/Mram_ROM2 [7:0];
+        END_BUS_BLOCK;
+		  
+		  BUS_BLOCK
+	        core/roms/Mram_ROM3 [7:0];
+        END_BUS_BLOCK;
+		  
+		  BUS_BLOCK
+	        core/roms/Mram_ROM4 [7:0];
+        END_BUS_BLOCK;
+		  
+		  BUS_BLOCK
+	        core/roms/Mram_ROM5 [7:0];
+        END_BUS_BLOCK;
+		  
+		  BUS_BLOCK
+	        core/roms/Mram_ROM6 [7:0];
+		  END_BUS_BLOCK;
+		  
+		  BUS_BLOCK
+	        core/roms/Mram_ROM7 [7:0];
+        END_BUS_BLOCK;
+		  
+		  BUS_BLOCK
+	        core/roms/Mram_ROM8 [7:0];
+        END_BUS_BLOCK;
+	  
+    END_ADDRESS_SPACE;	
+
+    ADDRESS_SPACE rom_disk RAMB16 [0x00000000:0x000007ff]
+        BUS_BLOCK
+	        disk/rom/Mram_ROM [7:0];
+        END_BUS_BLOCK;
+		  
+    END_ADDRESS_SPACE;	
+	
+
+END_ADDRESS_MAP;
