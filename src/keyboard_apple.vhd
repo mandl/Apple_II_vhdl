@@ -194,7 +194,7 @@ begin
       X"3d" when X"145", -- =
       X"3e" when X"1C2", -- >
       X"3f" when X"14a", -- ?
-      --X"40" when X"11e", -- @
+      X"40" when X"215", -- @
       X"41" when X"11c", -- A
       X"42" when X"132", -- B
       X"43" when X"121", -- C

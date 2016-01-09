@@ -139,7 +139,9 @@ begin
     end if;
     
   end process;
-
+test : process (CLK_14M)
+  begin
+    if rising_edge(CLK_14M) then
   H0 <= H(0);
   VA <= V(0);
   VB <= V(1);
@@ -164,11 +166,19 @@ begin
   VIDEO_ADDRESS(6 downto 3) <= (not H(5) &     V(6) & H(4) & H(3)) +
                                (    V(7) & not H(5) & V(7) &  '1') +
                                (                     "000" & V(6));
+										 
   VIDEO_ADDRESS(9 downto 7) <= V(5 downto 3);
-  VIDEO_ADDRESS(14 downto 10) <=
-    (             "00" & HBL & PAGE2 & not PAGE2) when HIRES = '0' else
-    (PAGE2 & not PAGE2 &  V(2 downto 0));
+  
+  if HIRES = '0' then
+		VIDEO_ADDRESS(14 downto 10) <= ("00" & HBL & PAGE2 & not PAGE2);
 
+  else
+    VIDEO_ADDRESS(14 downto 10) <= (PAGE2 & not PAGE2 &  V(2 downto 0));
+  end if;
+  
   VIDEO_ADDRESS(15) <= '0'; 
+  
+  end if;
+  end process;
   
 end rtl;

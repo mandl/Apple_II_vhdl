@@ -8,6 +8,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use work.T65_Pack.all;
 
 entity apple2 is
 generic (
@@ -104,6 +105,8 @@ architecture rtl of apple2 is
   signal speaker_sig : std_logic := '0';        
 
   signal DL : unsigned(7 downto 0);     -- Latched RAM data
+  
+  signal DEBUG   : T_t65_dbg;
 
 begin
 
@@ -301,7 +304,7 @@ end generate;
 T65_core: if use_T65_core generate
 
    cpu : entity work.T65 port map (
-            Mode            => "01",
+            Mode            => "00",
             Abort_n         => '1',
             SO_n            => '1',
             Res_n           => not reset,
@@ -312,12 +315,28 @@ T65_core: if use_T65_core generate
             NMI_n           => '1',
             R_W_n           => R_W_n,
             Sync            => open,
+				EF              => open,
+            MF              => open,
+            XF              => open,
+            ML_n            => open,
+            VP_n            => open,
+            VDA             => open,
+            VPA             => open,
             unsigned(A(23 downto 0))  => A_BIG,
-            DI(7 downto 0)  => std_logic_vector(D_IN),
-            unsigned(DO(7 downto 0))  => D
+            DI(7 downto 0)            => std_logic_vector(D_IN),
+            unsigned(DO(7 downto 0))  => D,
+				DEBUG                     => DEBUG  
         );
 	 A  <= A_BIG( 15 downto 0); 
     we <= not R_W_n;	  
+	 
+	 debugOpcode <= unsigned(DEBUG.I); -- instruction
+    debugA      <= unsigned(DEBUG.A); -- A reg
+    debugX      <= unsigned(DEBUG.X); -- X reg
+    debugY      <= unsigned(DEBUG.Y); -- Y reg
+    debugS      <= unsigned(DEBUG.S); -- stack pointer
+    --<= DEBUG.P; -- processor flags
+	 
 	 
 end generate;
 
